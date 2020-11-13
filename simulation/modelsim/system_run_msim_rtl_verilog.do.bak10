@@ -1,0 +1,12 @@
+transcript on
+if {[file exists rtl_work]} {
+	vdel -lib rtl_work -all
+}
+vlib rtl_work
+vmap work rtl_work
+
+vlog -vlog01compat -work work +incdir+G:/.shortcut-targets-by-id/1ubhd4frVFcvYHrHFKYkC7CkXVm7Z5tbZ/SHA-1\ Final\ Project/verilog/Mike\ Work/clean_up/verilog {G:/.shortcut-targets-by-id/1ubhd4frVFcvYHrHFKYkC7CkXVm7Z5tbZ/SHA-1 Final Project/verilog/Mike Work/clean_up/verilog/controller.v}
+vlog -vlog01compat -work work +incdir+G:/.shortcut-targets-by-id/1ubhd4frVFcvYHrHFKYkC7CkXVm7Z5tbZ/SHA-1\ Final\ Project/verilog/Mike\ Work/clean_up/verilog {G:/.shortcut-targets-by-id/1ubhd4frVFcvYHrHFKYkC7CkXVm7Z5tbZ/SHA-1 Final Project/verilog/Mike Work/clean_up/verilog/datapath.v}
+vlog -vlog01compat -work work +incdir+G:/.shortcut-targets-by-id/1ubhd4frVFcvYHrHFKYkC7CkXVm7Z5tbZ/SHA-1\ Final\ Project/verilog/Mike\ Work/clean_up/verilog {G:/.shortcut-targets-by-id/1ubhd4frVFcvYHrHFKYkC7CkXVm7Z5tbZ/SHA-1 Final Project/verilog/Mike Work/clean_up/verilog/system.v}
+vlog -vlog01compat -work work +incdir+G:/.shortcut-targets-by-id/1ubhd4frVFcvYHrHFKYkC7CkXVm7Z5tbZ/SHA-1\ Final\ Project/verilog/Mike\ Work/clean_up/verilog {G:/.shortcut-targets-by-id/1ubhd4frVFcvYHrHFKYkC7CkXVm7Z5tbZ/SHA-1 Final Project/verilog/Mike Work/clean_up/verilog/ram.v}
+

@@ -1,0 +1,18 @@
+module ram(
+   input	              clk,
+   input      [31:0]   din,
+   input      [6:0]   addr,
+   input               we,
+   output reg [31:0]   dout
+);
+      
+   reg [31:0] M [0:79];
+   initial $readmemh("sha_data.mem", M);
+   
+   always @(posedge clk) begin
+      if (we)
+         M[addr] <= din;
+      dout <= M[addr];
+   end
+   
+endmodule 

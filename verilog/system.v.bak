@@ -1,0 +1,130 @@
+module system(
+	input 				clk,
+	output 				done,
+	output	[159:0]	result
+);
+
+	wire [31:0] din;
+	wire [6:0] 	addr;
+	wire we;
+	wire [31:0] dout;
+	wire en_update_hash;
+	wire s_update_hash;
+	wire en_j;
+	wire s_j;
+	wire en_l;
+	wire s_l;
+	wire en_reassign;
+	wire s_reassign;
+	wire en_temp;
+	wire s_temp;
+	wire en_done;
+	wire s_done;
+	wire en_fk;
+	wire [2:0] s_fk;
+	wire en_fill_chunks;
+	wire en_read_1;
+	wire en_read_2;
+	wire en_read_3;
+	wire en_read_4;
+	wire en_fill_1;
+	wire en_fill_2;
+	wire en_fill_3;
+	wire en_fill_4;
+	wire [31:0] mem_val;
+	wire i_gt_addr;
+	wire j_lt_chunks;
+	wire l_lt_choose;
+	wire l_lt_parity_one;
+	wire l_lt_major;
+	wire l_lt_parity_two;
+	wire start_en;
+	
+	assign start_en = 1'b1;
+	
+	
+
+	datapath SHA1_datapath(
+		clk,
+		en_update_hash,
+		s_update_hash,
+		en_j,
+		s_j,
+		en_l,
+		s_l,
+		en_reassign,
+		s_reassign,
+		en_temp,
+		s_temp,
+		en_done,
+		s_done,
+		en_fk,
+		s_fk,
+		en_fill_chunks,
+		en_read_1,
+		en_read_2,
+		en_read_3,
+		en_read_4,
+		en_fill_1,
+		en_fill_2,
+		en_fill_3,
+		en_fill_4,
+		dout,
+		i_gt_addr,
+		j_lt_chunks,
+		l_lt_choose,
+		l_lt_parity_one,
+		l_lt_major,
+		l_lt_parity_two,
+		addr,
+		we,
+		din,
+		done,
+		result
+	);
+	
+	controller SHA1_controller(
+		clk,
+		reset,
+		start_en,
+		j_lt_chunks,
+		l_lt_choose,
+		l_lt_parity_one,
+		l_lt_major,
+		l_lt_parity_two,
+		en_update_hash,
+		en_j,
+		en_l,
+		en_reassign,
+		en_temp,
+		en_done,
+		en_fk,
+		en_fill_chunks,
+		en_fill_1,
+		en_fill_2,
+		en_fill_3,
+		en_fill_4,
+		en_read_1,
+		en_read_2,
+		en_read_3,
+		en_read_4,
+		s_update_hash,
+		s_j,
+		s_l,
+		s_reassign,
+		s_temp,
+		s_done,
+		s_fk
+	);
+	
+
+	ram sha_data(
+		clk,
+		din,
+		addr,
+		we,
+		dout
+	);
+
+
+endmodule 

@@ -1,0 +1,19 @@
+`timescale 1ns/1ns
+module ram_tb();
+	reg clk;
+	reg [31:0] din;
+	reg [6:0] raddr;
+	reg [6:0] waddr;
+	reg we;
+	wire [31:0] dout;
+);
+
+	ram uut(
+		.clk (clk),
+		.din (din),
+		.addr (addr),
+		.we (we),
+		.dout (dout)
+	);
+
+endmodule 

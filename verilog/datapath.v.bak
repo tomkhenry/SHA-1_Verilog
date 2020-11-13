@@ -1,0 +1,204 @@
+module datapath(
+	input clk,
+	input en_update_hash,
+	input s_update_hash,
+	input en_j,
+	input s_j,
+	input en_l,
+	input s_l,
+	input en_reassign,
+	input s_reassign,
+	input en_temp,
+	input s_temp,
+	input en_done,
+	input s_done,
+	input en_fk,
+	input [2:0] s_fk,
+	input en_fill_chunks,
+	input en_read_1,
+	input en_read_2,
+	input en_read_3,
+	input en_read_4,
+	input en_fill_1,
+	input en_fill_2,
+	input en_fill_3,
+	input en_fill_4,
+	input [31:0] dout,
+
+	//Output Flags
+	output i_gt_addr,
+	output j_lt_chunks,
+	output l_lt_choose,
+	output l_lt_parity_one,
+	output l_lt_major,
+	output l_lt_parity_two,
+	
+	//RAM Write
+	output reg [6:0] addr,
+	input we,
+	output reg [31:0] din,
+	
+	//Output register values
+	output reg done,
+	output reg [159:0] result
+
+);
+	
+	parameter CHOOSE	 = 3'h1;
+	parameter PARITY_1 = 3'h2;
+	parameter PARITY_2 = 3'h3;
+	parameter MAJOR	 = 3'h4;
+	
+	initial done = 1'b0;
+
+	reg [31:0] H0 	 = 32'h67DE2A01;
+	reg [31:0] H1 	 = 32'hBB03E28C;
+	reg [31:0] H2 	 = 32'h011EF1DC;
+	reg [31:0] H3 	 = 32'h9293E9E2;
+	reg [31:0] H4 	 = 32'hCDEF23A9;
+	reg [5:0] i		 = 6'h0;
+	reg [6:0] j 	 = 7'h16;
+	reg [6:0] l     = 7'h0;
+	reg [31:0] temp = 32'h0;
+	reg [31:0] A 	 = 32'h67DE2A01;
+	reg [31:0] B 	 = 32'hBB03E28C;
+	reg [31:0] C 	 = 32'h011EF1DC;
+	reg [31:0] D 	 = 32'h9293E9E2;
+	reg [31:0] E 	 = 32'hCDEF23A9;
+	reg [31:0] F	 = 32'h0;
+	reg [31:0] K	 = 32'h0;
+	reg [31:0] reg1;
+	reg [31:0] reg2;
+	reg [31:0] reg3;
+	reg [31:0] reg4;
+	
+	initial reg1 = 32'h0;
+	initial reg2 = 32'h0;
+	initial reg3 = 32'h0;
+	initial reg4 = 32'h0;
+
+
+	always @(posedge clk)
+		if(en_update_hash) begin
+			if(!s_update_hash) begin
+				H0 <= H0 + A;
+				H1 <= H1 + B;
+				H2 <= H2 + C;
+				H3 <= H3 + D;
+				H4 <= H4 + E;
+			end
+			else begin
+				H0 <= 32'h67DE2A01;
+				H1 <= 32'hBB03E28C;
+				H2 <= 32'h011EF1DC;
+				H3 <= 32'h9293E9E2;
+				H4 <= 32'hCDEF23A9;	
+			end
+		end
+				
+	always @(posedge clk)
+		if(en_j)
+			if(!s_j)
+				j <= j + 1;
+			else 
+				j<= 16;
+				
+	always @(posedge clk)
+		if(en_l)
+			if(!s_l)
+				l <= l + 1;
+			else
+				l <= 0;
+	
+	always @(posedge clk)
+		if(en_reassign) begin
+			if(!s_reassign) begin 
+				A <= temp;
+				B <= A;
+				C <= ((B << 30) | (B >> 2));
+				D <= C;
+				E <= D;
+			end
+			else begin
+				A <= 32'h67DE2A01;
+				B <= 32'hBB03E28C;
+				C <= 32'h011EF1DC;
+				D <= 32'h9293E9E2;
+				E <= 32'hCDEF23A9;
+			end
+		end
+		
+	always @(posedge clk)
+		if(en_temp)
+			if(!s_temp)
+				temp <= ((A << 5) | (A >> 27)) + F + E + K + dout;
+			else
+				temp <= 64'h0;
+				
+	always @(posedge clk)
+		if(en_fk) begin
+			case(s_fk)
+				0: begin F <= 0; K <= 0; end
+				CHOOSE: begin F <= (B & C) | ((~B) & D); K <= 32'h5A827999; end
+				PARITY_1: begin F <= (B ^ C ^ D); K <= 32'h6ED9EBA1; end
+				PARITY_2: begin F <= (B ^ C ^ D); K <= 32'hCA62C1D6; end
+				MAJOR: begin F <= (B & C) | (B & D) | (C & D); K <= 32'h8F1BBCDC; end
+			endcase
+		end
+	
+	
+	//Read from RAM
+	always @(posedge clk) begin 
+		if(en_fill_chunks) begin 
+			addr<= j;
+			din <= (((reg1 ^ reg2 ^ reg3 ^ reg4) << 1) | ((reg1 ^ reg2 ^ reg3 ^ reg4) >> 31));
+		end
+		else if(en_read_1)
+			addr <= j - 3;
+		else if(en_read_2)
+			addr <= j - 8;
+		else if(en_read_3)
+			addr <= j - 14;
+		else if(en_read_4)
+			addr <= j - 16;
+	end
+	  
+			
+	//Write to the reg vals for fill chunks
+	always @(posedge clk)
+		if(en_fill_1)
+			reg1 <= dout;
+	always @(posedge clk)
+		if(en_fill_2)
+			reg2 <= dout;
+	always @(posedge clk)
+		if(en_fill_3)
+			reg3 <= dout;
+	always @(posedge clk)
+		if(en_fill_4)
+			reg4 <= dout;
+			
+			
+	
+	always @(posedge clk)
+		if(en_done)
+			if(!s_done) begin
+				result <= (H0 << 128) | (H1 << 96) | (H2 << 64) | (H3 << 32) | H4;
+				done <= 1;
+			end
+			else begin
+				result <= 160'h0;
+				done <= 0;
+			end
+		
+
+	//Assign flag values
+	assign i_gt_addr = (i > 15);
+	assign j_lt_chunks = (j < 80);
+	assign l_lt_choose = (l < 20);
+	assign l_lt_parity_one = (l < 40);
+	assign l_lt_major = (l < 60);
+	assign l_lt_parity_two = (l < 80);
+	
+	
+endmodule 
